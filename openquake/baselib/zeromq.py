@@ -47,6 +47,8 @@ def connect(end_point, socket_type):
     a zmq socket.
     """
     sock = context.socket(socket_type)
+    if socket_type == zmq.REQ:
+        sock.linger = 0  # suggested by Daniele
     try:
         sock.connect(end_point)
     except zmq.error.ZMQError as exc:
