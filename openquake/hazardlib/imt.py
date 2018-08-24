@@ -206,6 +206,12 @@ class RSD2080(IMT):
     """
 
 
+class IJMA(IMT):
+    """
+    Japan Meteorological Agency seismic intensity scal
+    """
+
+
 class MMI(IMT):
     """
     Modified Mercalli intensity, a Roman numeral describing the severity
