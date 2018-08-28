@@ -190,11 +190,16 @@ class IntegrationDistance(collections.Mapping):
         return repr(self.dic)
 
 
-def prefilter(srcs, srcfilter, monitor):
+def prefilter(srcs, srcfilter, count_events, monitor):
     """
     :returns: a dict src_group_id -> sources
     """
-    return groupby(srcfilter.filter(srcs), src_group_id)
+    dic = groupby(srcfilter.filter(srcs), src_group_id)
+    if count_events:
+        for grp_id in dic:
+            for src in dic[grp_id]:
+                src.num_events  # cached_property
+    return dic
 
 
 class SourceFilter(object):
@@ -296,17 +301,18 @@ class SourceFilter(object):
                 src.indices = indices
                 yield src
 
-    def pfilter(self, sources, concurrent_tasks, monitor):
+    def pfilter(self, sources, concurrent_tasks, count_events, monitor):
         """
         Filter the sources in parallel by using Starmap.apply
 
         :param sources: a sequence of sources
         :param concurrent_tasks: how many tasks to generate
+        :param count_events: if True, set .num_events on the sources
         :param monitor: a Monitor instance
         :returns: a dictionary src_group_id -> sources
         """
         sources_by_grp = Starmap.apply(
-            prefilter, (sources, self, monitor),
+            prefilter, (sources, self, count_events, monitor),
             concurrent_tasks=concurrent_tasks, distribute=self.distribute,
             progress=logging.debug).reduce()
         # avoid task ordering issues

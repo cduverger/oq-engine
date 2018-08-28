@@ -46,7 +46,7 @@ RUPTURES_PER_BLOCK = 200  # decided by MS
 
 def weight(src):
     # heuristic weight
-    return src.num_ruptures * src.ndists
+    return (src.num_events + 1) * src.ndists
 
 
 def get_events(ebruptures):
