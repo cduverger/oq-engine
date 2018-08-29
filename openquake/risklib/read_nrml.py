@@ -162,16 +162,9 @@ def ffconvert(fname, limit_states, ff, min_iml=1E-10):
     with context(fname, ff):
         ffs = ff[1:]
         imls = ff.imls
-    nodamage = imls.attrib.get('noDamageLimit')
-    if nodamage == 0:
-        # use a cutoff to avoid log(0) in GMPE.to_distribution_values
-        logging.warn('Found a noDamageLimit=0 in %s, line %s, '
-                     'using %g instead', fname, ff.lineno, min_iml)
-        nodamage = min_iml
+    nodamage = imls.attrib.get('noDamageLimit', 0)
     with context(fname, imls):
-        attrs = dict(format=ff['format'],
-                     imt=imls['imt'],
-                     nodamage=nodamage)
+        attrs = dict(format=ff['format'], imt=imls['imt'], nodamage=nodamage)
 
     LS = len(limit_states)
     if LS != len(ffs):
@@ -197,6 +190,10 @@ def ffconvert(fname, limit_states, ff, min_iml=1E-10):
             array['stddev'][i] = node['stddev']
     elif ff['format'] == 'discrete':
         attrs['imls'] = ~imls
+        if nodamage == 0 and attrs['imls'] == 0:
+            # use a cutoff to avoid log(0) in GMPE.to_distribution_values
+            logging.warn('Found a noDamageLimit=0 in %s, line %s, '
+                         'using %g instead', fname, ff.lineno, min_iml)
         valid.check_levels(attrs['imls'], attrs['imt'], min_iml)
         num_poes = len(attrs['imls'])
         array = numpy.zeros((LS, num_poes))
