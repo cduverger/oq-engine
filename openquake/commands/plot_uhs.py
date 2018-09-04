@@ -74,5 +74,6 @@ def plot_uhs(calc_id, sites='0'):
     plt = make_figure(valid, n_sites, oq.imtls, oq.poes, pmaps)
     plt.show()
 
+
 plot_uhs.arg('calc_id', 'a computation id', type=int)
 plot_uhs.opt('sites', 'comma-separated string with the site indices')
