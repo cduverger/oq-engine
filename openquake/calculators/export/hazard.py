@@ -384,8 +384,8 @@ def export_hcurves_csv(ekey, dstore):
         fname = hazard_curve_name(dstore, (key, fmt), kind, rlzs_assoc)
         comment = _comment(rlzs_assoc, kind, oq.investigation_time)
         if key == 'uhs' and oq.poes and oq.uniform_hazard_spectra:
-            uhs_curves = calc.make_uhs(
-                hcurves, oq.imtls, oq.poes, len(sitemesh))
+            hmaps = dstore['hmaps/' + kind].value
+            uhs_curves = calc.build_uhs(hmaps, oq.imtls, oq.poes)
             writers.write_csv(
                 fname, util.compose_arrays(sitemesh, uhs_curves),
                 comment=comment)

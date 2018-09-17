@@ -277,6 +277,34 @@ def make_uhs(hcurves, imtls, poes, nsites):
     return uhs
 
 
+def build_uhs(hmaps, imts, poes):
+    """
+    Make Uniform Hazard Spectra curves for each location.
+
+    It is assumed that the `lons` and `lats` for each of the `maps` are
+    uniform.
+
+    :param hmaps:
+        an array of hazard maps of shape (N, M * P, 1)
+    :param imts:
+        intensity measure types objects
+    :param poes:
+        a sequence of PoEs for the underlying hazard maps
+    :returns:
+        an composite array containing N uniform hazard maps
+    """
+    P = len(poes)
+    imts_dt = numpy.dtype([(str(imt), F32)
+                           for imt in imts if hasattr(imt, 'period')])
+    uhs_dt = numpy.dtype([(str(poe), imts_dt) for poe in poes])
+    uhs = numpy.zeros(len(hmaps), uhs_dt)
+    for i, imt in enumerate(imts):
+        if hasattr(imt, 'period'):
+            for j, poe in enumerate(poes):
+                uhs[poe][imt] = hmaps[:, i * P + j, 0]
+    return uhs
+
+
 def fix_minimum_intensity(min_iml, imts):
     """
     :param min_iml: a dictionary, possibly with a 'default' key

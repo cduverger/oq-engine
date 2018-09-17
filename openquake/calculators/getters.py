@@ -154,6 +154,17 @@ class PmapGetter(object):
                  for pmap in self.get_pmaps(self.sids)]
         return numpy.array(pmaps)
 
+    def get_hmaps(self, kind):
+        """
+        :param imtls: intensity measure types and levels
+        :returns: an array of N hazard maps
+        """
+        self.init()
+        if kind in self.dstore['hmaps']:
+            return self.dstore['hmaps/' + kind].value
+        # kind = rlz-XXX
+        return calc.make_hmap_array(self.get(kind), self.imtls, self.poes)
+
     def items(self, kind=''):
         """
         Extract probability maps from the datastore, possibly generating
