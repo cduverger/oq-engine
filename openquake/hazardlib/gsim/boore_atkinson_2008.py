@@ -247,7 +247,6 @@ class BooreAtkinson2008(GMPE):
         Compute non-linear term,
         equation (8a) to (8c), pag 108.
         """
-
         fnl = np.zeros(pga4nl.shape)
         a1 = 0.03
         a2 = 0.09
@@ -255,21 +254,22 @@ class BooreAtkinson2008(GMPE):
 
         # equation (8a)
         idx = pga4nl <= a1
-        fnl[idx] = bnl[idx] * np.log(pga_low / 0.1)
+        fnl[idx] = bnl[idx].squeeze() * np.log(pga_low / 0.1)
 
         # equation (8b)
         idx = np.where((pga4nl > a1) & (pga4nl <= a2))
+        b = bnl[idx].squeeze()
         delta_x = np.log(a2 / a1)
-        delta_y = bnl[idx] * np.log(a2 / pga_low)
-        c = (3 * delta_y - bnl[idx] * delta_x) / delta_x ** 2
-        d = -(2 * delta_y - bnl[idx] * delta_x) / delta_x ** 3
-        fnl[idx] = bnl[idx] * np.log(pga_low / 0.1) +\
+        delta_y = b * np.log(a2 / pga_low)
+        c = (3 * delta_y - b * delta_x) / delta_x ** 2
+        d = -(2 * delta_y - b * delta_x) / delta_x ** 3
+        fnl[idx] = b * np.log(pga_low / 0.1) +\
             c * (np.log(pga4nl[idx] / a1) ** 2) + \
             d * (np.log(pga4nl[idx] / a1) ** 3)
 
         # equation (8c)
         idx = pga4nl > a2
-        fnl[idx] = np.squeeze(bnl[idx]) * np.log(pga4nl[idx] / 0.1)
+        fnl[idx] = bnl[idx].squeeze() * np.log(pga4nl[idx] / 0.1)
 
         return fnl
 
