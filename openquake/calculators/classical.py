@@ -20,7 +20,7 @@ import logging
 import operator
 import numpy
 
-from openquake.baselib import parallel, hdf5, datastore
+from openquake.baselib import parallel, hdf5, datastore, config
 from openquake.baselib.python3compat import encode
 from openquake.baselib.general import AccumDict, block_splitter
 from openquake.hazardlib.calc.hazard_curve import classical, ProbabilityMap
@@ -197,7 +197,8 @@ class ClassicalCalculator(base.HazardCalculator):
         hstats = self.oqparam.hazard_stats()
         for t in self.sitecol.split_in_tiles(self.oqparam.concurrent_tasks):
             pgetter = getters.PmapGetter(parent, self.rlzs_assoc, t.sids)
-            if parent is self.datastore:  # read now, not in the workers
+            if config.multi_node and not config.directory.shared_dir:
+                # read now, not in the workers
                 logging.info('Reading PoEs on %d sites', len(t))
                 pgetter.init()
             yield pgetter, hstats, monitor
